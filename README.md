@@ -14,7 +14,7 @@ A beautiful, responsive character sheet for the San Laguna RPG system.
 ## How to Use
 
 1. **Online**: Visit the live version at [https://paulodcsc.github.io/sanlagunasheet/](https://paulodcsc.github.io/sanlagunasheet/)
-2. **Local**: Download `sheet.html` and open it in any modern web browser
+2. **Local**: Download `index.html` and open it in any modern web browser
 
 ## Character Creation
 
