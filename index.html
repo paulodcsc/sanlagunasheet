@@ -94,7 +94,7 @@
         .name-field input {
             width: 100%;
             padding: 12px;
-            font-size: 1.2em;
+            font-size: 16px;
             border: 2px solid #555;
             border-radius: 8px;
             font-family: 'Source Sans 3', 'Arial', sans-serif;
@@ -141,6 +141,7 @@
             resize: vertical;
             min-height: 60px;
             font-family: 'Source Sans 3', 'Arial', sans-serif;
+            font-size: 16px;
             transition: border-color 0.3s;
             background: #333;
             color: #f0f0f0;
@@ -190,7 +191,7 @@
             width: 60px;
             padding: 5px;
             text-align: center;
-            font-size: 1.2em;
+            font-size: 16px;
             border: 2px solid #ff6b6b;
             border-radius: 5px;
             margin: 0 5px;
@@ -232,6 +233,7 @@
             font-family: 'Source Sans 3', 'Arial', sans-serif;
             background: #333;
             color: #f0f0f0;
+            font-size: 16px;
         }
 
         .notes-section textarea {
@@ -244,6 +246,7 @@
             font-family: 'Source Sans 3', 'Arial', sans-serif;
             background: #333;
             color: #f0f0f0;
+            font-size: 16px;
         }
 
         .notes-section textarea:focus {
@@ -281,6 +284,7 @@
             border-radius: 3px;
             background: #333;
             color: #f0f0f0;
+            font-size: 16px;
         }
 
         .action-btn {
@@ -450,7 +454,7 @@
                 <div class="equipment-list">
                     <h4>Armas & Dano</h4>
                     <textarea placeholder="Desarmado/Improvisado: 1 dano
-Faca/Porrete/Corpo a corpo: 2 dano  
+Faca/Porrete/Corpo a corpo: 2 dano
 Pistola: 3 dano
 Rifle/Espingarda: 4 dano"></textarea>
                 </div>
@@ -485,23 +489,23 @@ Rifle/Espingarda: 4 dano"></textarea>
             const toughDesc = document.getElementById('tough-desc').value;
             const maxHPElement = document.getElementById('max-hp');
             const currentHPElement = document.getElementById('current-hp');
-            
+
             // Count descriptors by commas and non-empty content
             const descriptorCount = toughDesc.trim() === '' ? 0 : toughDesc.split(',').filter(desc => desc.trim() !== '').length;
             const totalHP = 10 + (descriptorCount * 2);
-            
+
             maxHPElement.textContent = totalHP;
-            
+
             // Update current HP if it's higher than new max or still at previous max
             const currentHP = parseInt(currentHPElement.value);
             const previousMax = parseInt(maxHPElement.textContent);
-            
+
             if (currentHP >= previousMax || currentHP > totalHP) {
                 currentHPElement.value = totalHP;
             }
-            
+
             currentHPElement.max = totalHP;
-            
+
             // Auto-save after HP calculation
             saveToLocalStorage();
         }
