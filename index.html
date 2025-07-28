@@ -85,20 +85,28 @@
         }
 
         .character-info {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
+            display: flex;
+            align-items: center;
+            gap: 30px;
             margin-bottom: 25px;
+            padding: 20px;
+            background: linear-gradient(145deg, rgba(42, 42, 42, 0.6) 0%, rgba(30, 30, 30, 0.6) 100%);
+            border-radius: 12px;
+            border: 1px solid #444;
+        }
+
+        .name-field {
+            flex: 1;
         }
 
         .name-field input {
             width: 100%;
-            padding: 12px;
-            font-size: 16px;
+            padding: 15px;
+            font-size: 18px;
             border: 2px solid #555;
-            border-radius: 8px;
+            border-radius: 10px;
             font-family: 'Source Sans 3', 'Arial', sans-serif;
-            transition: border-color 0.3s;
+            transition: all 0.3s;
             background: #333;
             color: #f0f0f0;
         }
@@ -111,9 +119,99 @@
 
         .name-field label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-weight: bold;
             color: #d4af37;
+            font-size: 1.1em;
+        }
+
+        .image-uploader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .image-preview {
+            width: 140px;
+            height: 140px;
+            border: 2px dashed #555;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #333;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .image-preview:hover {
+            border-color: #d4af37;
+            background: #3a3a3a;
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4), 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .image-placeholder {
+            color: #777;
+            font-size: 1em;
+            text-align: center;
+            padding: 15px;
+            user-select: none;
+            transition: color 0.3s;
+        }
+
+        .image-preview:hover .image-placeholder {
+            color: #d4af37;
+        }
+
+        .image-upload-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .image-remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(255, 107, 107, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            font-size: 14px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .image-remove-btn:hover {
+            background: rgba(255, 107, 107, 1);
+            transform: scale(1.1);
+        }
+
+        .image-preview:hover .image-remove-btn {
+            display: flex;
         }
 
         .descriptors-grid {
@@ -355,7 +453,12 @@
         }
 
         @media (max-width: 768px) {
-            .character-info,
+            .character-info {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
             .descriptors-grid,
             .stats-grid,
             .equipment-section {
@@ -364,6 +467,21 @@
             
             .character-sheet {
                 padding: 20px;
+            }
+            
+            .image-preview {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .image-placeholder {
+                font-size: 0.9em;
+                padding: 10px;
+            }
+            
+            .name-field input {
+                font-size: 16px;
+                padding: 12px;
             }
         }
     </style>
@@ -379,7 +497,17 @@
         </div>
 
         <div class="section">
+            <div class="section-title">Perfil</div>
             <div class="character-info">
+                <div class="image-uploader">
+                    <div class="image-preview" id="image-preview">
+                        <div class="image-placeholder">
+                            Foto do personagem
+                        </div>
+                        <input type="file" class="image-upload-input" id="character-image" accept="image/*" onchange="handleImageUpload(event)">
+                        <button class="image-remove-btn" onclick="removeCharacterImage()" title="Remover imagem">×</button>
+                    </div>
+                </div>
                 <div class="name-field">
                     <label for="character-name">Nome do Personagem</label>
                     <input type="text" id="character-name" placeholder="Ex: Sarah Perez, Jornalista Investigativa">
@@ -513,6 +641,7 @@ Rifle/Espingarda: 4 dano"></textarea>
         function saveToLocalStorage() {
             const characterData = {
                 name: document.getElementById('character-name').value,
+                image: document.getElementById('image-preview').querySelector('img')?.src || null,
                 descriptors: {
                     profession: document.querySelectorAll('.descriptor-field textarea')[0].value,
                     skill: document.querySelectorAll('.descriptor-field textarea')[1].value,
@@ -553,6 +682,11 @@ Rifle/Espingarda: 4 dano"></textarea>
                 
                 // Load basic info
                 document.getElementById('character-name').value = characterData.name || '';
+                
+                // Load character image
+                if (characterData.image) {
+                    loadCharacterImage(characterData.image);
+                }
                 
                 // Load descriptors
                 const descriptorTextareas = document.querySelectorAll('.descriptor-field textarea');
@@ -599,6 +733,7 @@ Rifle/Espingarda: 4 dano"></textarea>
         function exportCharacter() {
             const characterData = {
                 name: document.getElementById('character-name').value,
+                image: document.getElementById('image-preview').querySelector('img')?.src || null,
                 descriptors: {
                     profession: document.querySelectorAll('.descriptor-field textarea')[0].value,
                     skill: document.querySelectorAll('.descriptor-field textarea')[1].value,
@@ -641,6 +776,11 @@ Rifle/Espingarda: 4 dano"></textarea>
                     // Load basic info
                     document.getElementById('character-name').value = characterData.name || '';
                     
+                    // Load character image
+                    if (characterData.image) {
+                        loadCharacterImage(characterData.image);
+                    }
+                    
                     // Load descriptors
                     const descriptorTextareas = document.querySelectorAll('.descriptor-field textarea');
                     descriptorTextareas[0].value = characterData.descriptors?.profession || '';
@@ -678,6 +818,7 @@ Rifle/Espingarda: 4 dano"></textarea>
         function clearSheet() {
             if (confirm('Tem certeza que deseja limpar toda a ficha? Esta ação não pode ser desfeita.')) {
                 document.getElementById('character-name').value = '';
+                removeCharacterImage();
                 document.querySelectorAll('textarea').forEach(textarea => textarea.value = '');
                 document.getElementById('tough-desc').value = '';
                 calculateHP();
@@ -686,6 +827,71 @@ Rifle/Espingarda: 4 dano"></textarea>
                 // Clear localStorage as well
                 localStorage.removeItem('simpleRPG_character');
             }
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                alert('Por favor, selecione apenas arquivos de imagem.');
+                return;
+            }
+
+            // Validate file size (max 2MB)
+            if (file.size > 2 * 1024 * 1024) {
+                alert('A imagem deve ter no máximo 2MB.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                loadCharacterImage(e.target.result);
+                saveToLocalStorage(); // Save after image upload
+            };
+            reader.readAsDataURL(file);
+            
+            // Reset file input
+            event.target.value = '';
+        }
+
+        function loadCharacterImage(imageSrc) {
+            const preview = document.getElementById('image-preview');
+            const placeholder = preview.querySelector('.image-placeholder');
+            
+            // Remove existing image if any
+            const existingImg = preview.querySelector('img');
+            if (existingImg) {
+                existingImg.remove();
+            }
+            
+            // Create and add new image
+            const img = document.createElement('img');
+            img.src = imageSrc;
+            img.alt = 'Foto do Personagem';
+            preview.appendChild(img);
+            
+            // Hide placeholder
+            if (placeholder) {
+                placeholder.style.display = 'none';
+            }
+        }
+
+        function removeCharacterImage() {
+            const preview = document.getElementById('image-preview');
+            const img = preview.querySelector('img');
+            const placeholder = preview.querySelector('.image-placeholder');
+            
+            if (img) {
+                img.remove();
+            }
+            
+            if (placeholder) {
+                placeholder.style.display = 'block';
+            }
+            
+            saveToLocalStorage(); // Save after image removal
         }
 
         // Initialize HP calculation and auto-save
